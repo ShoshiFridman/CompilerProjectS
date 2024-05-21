@@ -1,6 +1,10 @@
-#include "actions_goto.c"
+
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "Stack.h"
+#include "mystring.h"
+
 
 #define TABLE_SIZE 100
 #define MAX_STACK_SIZE 50
@@ -19,7 +23,6 @@
 #define binaryOperator 99
 
 
-
 // Structure to represent a symbol table entry
 typedef struct {
     char key[50];//id
@@ -33,10 +36,12 @@ typedef struct {
 } MyStack;
 MyStack mystack;
 
+
 // Function to initialize the stack
 void initialize_stack(MyStack* stack) {
     stack->top = -1;
 }
+
 Entry* getNextItem(MyStack* stack) {
     if (stack->top < 0) {
         return NULL; // Stack is empty
@@ -53,6 +58,7 @@ Entry* getNextItem(MyStack* stack) {
         return NULL; // Reached end of stack
     }
 }
+
 // Function to push an item onto the stack
 void push1(MyStack* stack, Entry* item) {
     if (stack->top >= MAX_STACK_SIZE - 1) {
@@ -70,6 +76,7 @@ Entry* pop1(MyStack* stack) {
     }
     return stack->items[stack->top--];
 }
+
 Entry* peek1(MyStack* stack) {
     if (stack->top < 0) {
         printf("Stack is empty\n");
@@ -77,9 +84,10 @@ Entry* peek1(MyStack* stack) {
     }
     return stack->items[stack->top];
 }
-// Hash table to store symbol table entries
-Entry hash_table[TABLE_SIZE];
+
+Entry hash_table[TABLE_SIZE];		// Hash table to store symbol table entries
 Entry* hash_table_ptr = hash_table; // Pointer to the hash table on the stack
+
 // Hash function to calculate index for key
 int hash_function(char* key) {
     int sum = 0;
@@ -102,6 +110,7 @@ void insert_value(Entry* table, char* key, char* val) {
     int index = hash_function(key);
     myStrcpy(table[index].value, val);
 }
+
 // Function to search for an entry in the symbol table
 Entry* search_entry(Entry* ht, char* key)
 {
@@ -113,6 +122,8 @@ Entry* search_entry(Entry* ht, char* key)
         return NULL;
     }
 }
+
+void returnError(char*);
 
 void check(struct Node* node, Entry* Item)
 {
@@ -137,9 +148,8 @@ void check(struct Node* node, Entry* Item)
             check(node->pointers[i], Item);
         }
     }
-
-
 }
+
 void checkOperators(struct Node* node1, struct Node* node2)
 {
     //בדיקת התאמה בין סוגים ע"י מעבר על העלים של צומת הביטוי 
@@ -149,6 +159,7 @@ void checkOperators(struct Node* node1, struct Node* node2)
     if (node1 == NULL || node2 == NULL) {
         return;
     }
+
     if (node1->numPointers != 0 && node2->numPointers != 0)
     {
         // Recursively check children for leaf nodes
@@ -160,17 +171,11 @@ void checkOperators(struct Node* node1, struct Node* node2)
     if (node1->numOfToken == 0)
         e = search_entry(peek1(&mystack), node1->key);
 
-
-
     if (node2->numOfToken == 0)
         e1 = search_entry(peek1(&mystack), node1->key);
 
-
-
     if (node1->numOfToken != node2->numOfToken || node1->numOfToken + node2->numOfToken != 63 || e != NULL && e->type != node2->numOfToken || e1 != NULL && e1->type != node1->numOfToken || e != NULL && e1 != NULL && e->type != e1->type)
         returnError("semantic error:The values are not of the same type");
-
-
 }
 
 Entry* searchInStack(char* key)//חיפוש בכל טבלאות הסמלים
@@ -190,6 +195,7 @@ Entry* searchInStack(char* key)//חיפוש בכל טבלאות הסמלים
     }
     return NULL;
 }
+
 //פונקצייה שבודקת האם משתנה מוגדר בטבלת סמלים
 Entry* checkIfDeclared(char* key)
 {
@@ -201,9 +207,9 @@ Entry* checkIfDeclared(char* key)
         returnError("semantic error:Variable not defined!!!");
 
     }
-    return entry
-        ;
+    return entry;
 }
+
 void createNewSymbolTable()
 {
     Entry new_hash_table[TABLE_SIZE];
@@ -211,17 +217,17 @@ void createNewSymbolTable()
     push(&mystack, new_hash_table_ptr);
 
 }
+
 int searchBlock(struct Node* node)
 {
     if (node == NULL) {
-        return;
+        return 0;
     }
     if (node->numOfToken == IF_STATEMENT)
         return 0;
 
     if (node->numOfToken == BLOCK)
         return 1;
-
     else
     {
         // Recursively check children for leaf nodes
@@ -229,12 +235,12 @@ int searchBlock(struct Node* node)
             searchBlock(node->pointers[i]);
         }
     }
+
     return 0;
 }
 
-
-void deepSearch(struct Node* node, int d) {
-    Entry* current_Entry;
+void deepSearch(struct Node* node, int d)
+{
     if (node == NULL) {
         return;
     }
@@ -242,13 +248,10 @@ void deepSearch(struct Node* node, int d) {
     if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
         insert_entry(peek1(&mystack), node->pointers[node->numPointers - 1]->key, node->pointers[node->numPointers]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
 
-
     //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
     if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration)
     {
         checkIfDeclared(node->key);
-
-
     }
     //השמת ערך במשתנה
     if (node->numOfToken == Assignment_Operator && node->parent->numOfToken == optional_initializer)
@@ -257,7 +260,6 @@ void deepSearch(struct Node* node, int d) {
 
         if (entry != NULL)
             check(node->parent->pointers[0], entry);
-
     }
     //התחלת סקופ של פונקציה
     if (node->numOfToken == FUNCTION_DEFINITION)
@@ -298,6 +300,8 @@ void deepSearch(struct Node* node, int d) {
     }
 }
 
+Node* syntactAnalysis();
+
 void semanticAnalysis() {
 
     Node* node = syntactAnalysis();
@@ -307,13 +311,10 @@ void semanticAnalysis() {
     push(&mystack, hash_table_ptr);
 
     deepSearch(node, 0);
-
-
 }
+
 
 void main()
 {
     semanticAnalysis();
-
-
 }

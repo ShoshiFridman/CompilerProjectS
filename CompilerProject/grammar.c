@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+
 #define COLUMN 11
 #define ROW 113
 #define SIZE_BUFFER 1024
@@ -11,7 +13,7 @@
 FILE* fileGrammar = NULL;
 void Grammar()
 {
-    errno_t er = fopen_s(fileGrammar, "C:/Users/User/Desktop/compilerProject/CFG.txt", "r");
+    errno_t er = fopen_s(&fileGrammar, "C:/Users/User/Desktop/compilerProject/CFG.txt", "r");
     if (fileGrammar == NULL)
     {
         printf("error in the file CFG.txt \n");

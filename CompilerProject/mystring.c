@@ -1,15 +1,16 @@
 
 #include <stdio.h>
-#ifndef MYSTRING_H
-#define MYSTRING_H
+#include <stdlib.h>
+#include <string.h>
 
-// Function declarations
+#include "mystring.h"
+
 
 //strlen מימוש של
 int myStrlen(char* str) {
     char* s;
     for (s = str; *s; ++s);
-    return s - str;
+    return (int)(s - str);
 }
 
 //strcpy מימוש של
@@ -26,6 +27,7 @@ char* myStrcpy(char* destination, const char* source) {
 
     return destination;
 }
+
 //מימוש של strdup
 char* my_strdup(const char* src) {
     // Get the length of the source string
@@ -42,6 +44,7 @@ char* my_strdup(const char* src) {
 
     return dest;
 }
+
 //strcmp מימוש של  
 int myStrcmp(const char* str1, const char* str2) {
     while (*str1 && (*str1 == *str2)) {
@@ -62,7 +65,6 @@ char* my_strchr(const char* s, int c) {
 
     return NULL;
 }
-
 
 //מימוש של strtok
 char* mystrtok(char* str, const char* delim) {
@@ -90,6 +92,3 @@ char* mystrtok(char* str, const char* delim) {
 
     return token;
 }
-
-
-#endif // MYSTRING_H

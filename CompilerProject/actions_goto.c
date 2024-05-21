@@ -1,94 +1,175 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "Stack.c"
 
-#include "CFG.c"
+#include "lexicaly.h"
+#include "mystring.h"
+#include "Stack.h"
+#include "cfg.h"
 
-#ifndef error_c
-#define error_c
-#endif // !error_c
-
-#include "lexicaly.c"
-
+#define MAX_ROWS 182
+#define MAX_COLS 102
 #define NO_ERROR 0
+
 int** matrix;
 
-
 int FillTable() {
-    FILE* fp = NULL;
-    char buffer[1024];
-    int num_lines, num_cols;
+    FILE* fp; // מצביע לקובץ
+    char buffer[1024]; // מערך לאחסון שורה מהקובץ
+    int num_lines = 0; // ספירת שורות
+    int num_cols = 0; // ספירת עמודות
+    int** matrix; // מצביע למטריצה
+    char* token; // מצביע לאסימון
 
     // פתיחת קובץ CSV
-    errno_t er = fopen_s(fp, "C:/Users/User/Desktop/compilerProject/actions-goto-file.csv", "r");
+    errno_t er = fopen_s(&fp, "C:/Users/User/Desktop/compilerProject/actions-goto-file.csv", "r");
     if (fp == NULL) {
         perror("Error opening file");
         return 1;
     }
 
     // ספירת שורות ועמודות
-    num_lines = 0;
-    num_cols = 0;
-    while (fgets(buffer, sizeof(buffer), fp)) {
+    while (fgets(buffer, sizeof(buffer), fp) && !feof(fp)) {
         num_lines++;
         int temp_cols = 0;
-        char* line = mystrtok(buffer, ",");
-        while (line != NULL) {
-            temp_cols++;
-            line = mystrtok(NULL, ",");
+        for (int i = 0; buffer[i] != '\0'; i++) {
+            if (buffer[i] == ',') {
+                temp_cols++;
+            }
         }
         if (num_cols == 0) {
             num_cols = temp_cols;
         }
-        /*else if (num_cols != temp_cols) {
-            // שגיאה: מספר העמודות אינו אחיד
-            return 1;
-        }*/
     }
 
     // הקצאת זיכרון למטריצה
     matrix = malloc(sizeof(int*) * num_lines);
     if (matrix == NULL) {
         perror("Error allocating memory");
+        fclose(fp);
         return 1;
     }
     for (int i = 0; i < num_lines; i++) {
         matrix[i] = malloc(sizeof(int) * num_cols);
         if (matrix[i] == NULL) {
             perror("Error allocating memory");
+            free(matrix); // שחרור זיכרון
+            fclose(fp);
             return 1;
         }
     }
 
-    // קריאת מספרים מהקובץ והעתקתם למטריצה
+    // חזרה לתחילת הקובץ
     rewind(fp);
+
+    // קריאת מספרים מהקובץ והעתקתם למטריצה
     for (int i = 0; i < num_lines; i++) {
         for (int j = 0; j < num_cols; j++) {
-            fscanf_s(fp, "%d", &matrix[i][j]);
+            if (fgets(buffer, sizeof(buffer), fp) == NULL) {
+                break; // הגיעו לסוף הקובץ
+            }
+            token = strtok(buffer, ",");
+            if (token == NULL) {
+                printf("Error reading value at row %d, column %d\n", i, j);
+                continue;
+            }
+            matrix[i][j] = atoi(token);
         }
     }
 
     // סגירת קובץ
     fclose(fp);
 
+    // הדפסת תוכן המטריצה (לא חובה)
+    for (int i = 0; i < num_lines; i++) {
+        for (int j = 0; j < num_cols; j++) {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
 
-
-    // שחרור זיכרון
-   /* for (int i = 0; i < num_lines; i++) {
+    // שחרור זיכרון המטריצה
+    for (int i = 0; i < num_lines; i++) {
         free(matrix[i]);
     }
-    free(matrix);*/
+    free(matrix);
 
     return 0;
 }
+
+
+//int FillTable() {
+//    FILE* fp = NULL;
+//    char buffer[1024];
+//    int num_lines, num_cols;
+//
+//    // פתיחת קובץ CSV
+//    errno_t er = fopen_s(&fp, "C:/Users/User/Desktop/compilerProject/actions-goto-file.csv", "r");
+//    if (fp == NULL) {
+//        perror("Error opening file");
+//        return 1;
+//    }
+//
+//    // ספירת שורות ועמודות
+//    num_lines = 0;
+//    num_cols = 0;
+//    while (fgets(buffer, sizeof(buffer), fp) && !feof(fp)) {
+//        num_lines++;
+//        int temp_cols = 0;
+//        for (int i = 0; buffer[i] != '\0'; i++) {
+//            if (buffer[i] == ',') {
+//                temp_cols++;
+//            }
+//        }
+//        if (num_cols == 0) {
+//            num_cols = temp_cols;
+//        }
+//        /*else if (num_cols != temp_cols) {
+//            // שגיאה: מספר העמודות אינו אחיד
+//            return 1;
+//        }*/
+//    }
+//
+//    // הקצאת זיכרון למטריצה
+//    matrix = malloc(sizeof(int*) * num_lines);
+//    if (matrix == NULL) {
+//        perror("Error allocating memory");
+//        return 1;
+//    }
+//    for (int i = 0; i < num_lines; i++) {
+//        matrix[i] = malloc(sizeof(int) * num_cols);
+//        if (matrix[i] == NULL) {
+//            perror("Error allocating memory");
+//            return 1;
+//        }
+//    }
+//
+//    // קריאת מספרים מהקובץ והעתקתם למטריצה
+//    rewind(fp);
+//    for (int i = 0; i < num_lines; i++) {
+//        for (int j = 0; j < num_cols; j++) {
+//            fscanf(fp, "%d", &matrix[i][j]);
+//        }
+//    }
+//
+//    // סגירת קובץ
+//    fclose(fp);
+//
+//    // שחרור זיכרון
+//   /* for (int i = 0; i < num_lines; i++) {
+//        free(matrix[i]);
+//    }
+//    free(matrix);*/
+//
+//    return 0;
+//}
+
+void returnError(char*);
 
 Node* syntactAnalysis()
 {
     lexicalAnalysis();
     FillTable();
-    CFG();
-
     //פונקציה זו מנהלת את המחסנית ע"י קריאת רשימת הטוקנים,
     //בדיקה בטבלה במיקום המתאים + הטוקן
     //אם המספר חיובי- פעולת שיפט מכניסים את הטוקן הבא מהרשימה
@@ -97,17 +178,13 @@ Node* syntactAnalysis()
     Stack* stack = createStack();
     Node* node1 = createNode(NO_ERROR, "$", 58);
     Node* mynode;
-    Node* ret;
-    push(&stack, node1);
+    Node* ret = NULL;
+    push(stack, node1);
     // mynode = peek(&stack);
 
     Token* tokenPtr = *headList;
 
     int mystate = NO_ERROR, action, counter, myindex = tokenPtr->index;
-
-
-
-
 
     /*push(&stack, tokenPtr->index);
     tokenPtr = tokenPtr->next;*/
@@ -120,49 +197,41 @@ Node* syntactAnalysis()
         action = matrix[mystate][myindex];
         if (action == -999)
             returnError("syntax error!!!");
+
         //push(&stack,abs( action));
         if (action == 0)//access
-            ret = pop(&stack);
+            ret = pop(stack);
+
         if (action > 0)//shift
         {
             node1 = createNode(action, tokenPtr->nameToken, tokenPtr->index);
 
-            push(&stack, node1);
-
-
+            push(stack, node1);
 
             tokenPtr = tokenPtr->next;
 
             //myindex = peek(&stack)->numOfToken;
-
         }
-
         else
         {
-
             counter = deductions[abs(action)].numToCut;
-            mystate = peekAt(&stack, counter)->state;
+            mystate = peekAt(stack, counter)->state;
             action = matrix[mystate][deductions[abs(action)].valueNumber];
             mynode = createNode(action, deductions[abs(action)].deduct, deductions[abs(action)].valueNumber);
             for (int i = 0; i < counter; i++)
             {
-                Node* childNode = pop(&stack);
+                Node* childNode = pop(stack);
                 addPointer(mynode, childNode);
 
                 childNode->parent = mynode; // Link parent to child
-
             }
 
-
-
-            push(&stack, mynode);
-
-
+            push(stack, mynode);
         }
-        mystate = peek(&stack)->state;
-        myindex = tokenPtr->index;
 
+        mystate = peek(stack)->state;
+        myindex = tokenPtr->index;
     }
 
-
+    return ret;
 }

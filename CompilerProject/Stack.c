@@ -1,29 +1,17 @@
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "mystring.c"
 
+#include "Stack.h"
+#include "mystring.h"
 
-
-#define MAX_SIZE 100
-typedef struct Node {
-    int state;
-    char* key;
-    int numOfToken;
-    struct Node** pointers;
-    int numPointers;
-    struct Node* parent;
-} Node;
-
-typedef struct {
-    Node* array[MAX_SIZE];
-    int top;
-} Stack;
 
 Stack* createStack() {
     Stack* stack = (Stack*)malloc(sizeof(Stack));
     stack->top = -1;
     return stack;
 }
+
 struct Node* createNode(int state, char* key, int numOfToken) {
     struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
     if (newNode == NULL) {
@@ -42,6 +30,7 @@ struct Node* createNode(int state, char* key, int numOfToken) {
     newNode->pointers = NULL;
     return newNode;
 }
+
 void addPointer(Node* node, Node* pointer) {
     node->numPointers++;
     Node** temp = (Node**)realloc(node->pointers, node->numPointers * sizeof(Node*));
@@ -86,6 +75,7 @@ Node* peekAt(Stack* stack, int position) {
     }
     return stack->array[stack->top - position + 1];
 }
+
 Node* peek(Stack* stack) {
     if (isEmpty(stack)) {
         printf("Stack is empty\n");
@@ -93,4 +83,3 @@ Node* peek(Stack* stack) {
     }
     return stack->array[stack->top];
 }
-

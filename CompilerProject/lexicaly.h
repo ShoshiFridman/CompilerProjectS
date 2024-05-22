@@ -6,11 +6,16 @@ typedef struct Token {
 	char* nameToken;
 	int index;
 	struct Token* next;
+	struct Token* prev;
+
 
 }Token;
 
 
 Token* tokenPtr;
-Token** headList;
+//Token** headList;
+Token* headList;
+Token* tailList ;
+
 void lexicalAnalysis();
 

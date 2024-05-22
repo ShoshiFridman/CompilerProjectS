@@ -7,93 +7,34 @@
 #include "Stack.h"
 #include "cfg.h"
 
-#define MAX_ROWS 182
-#define MAX_COLS 102
+#define ROWS 181
+#define COLS 102
+
 #define NO_ERROR 0
 
-int** matrix;
+int matrix[ROWS][COLS];
 
 int FillTable() {
-    FILE* fp; // מצביע לקובץ
-    char buffer[1024]; // מערך לאחסון שורה מהקובץ
-    int num_lines = 0; // ספירת שורות
-    int num_cols = 0; // ספירת עמודות
-    int** matrix; // מצביע למטריצה
-    char* token; // מצביע לאסימון
+    FILE* fp;
 
-    // פתיחת קובץ CSV
+
     errno_t er = fopen_s(&fp, "C:/Users/User/Desktop/compilerProject/actions-goto-file.csv", "r");
+
     if (fp == NULL) {
-        perror("Error opening file");
+        printf("Error opening file\n");
         return 1;
     }
 
-    // ספירת שורות ועמודות
-    while (fgets(buffer, sizeof(buffer), fp) && !feof(fp)) {
-        num_lines++;
-        int temp_cols = 0;
-        for (int i = 0; buffer[i] != '\0'; i++) {
-            if (buffer[i] == ',') {
-                temp_cols++;
+
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (fscanf(fp, "%d,", &matrix[i][j]) != 1) {
+                printf("Error reading file\n");
+                return 1;
             }
         }
-        if (num_cols == 0) {
-            num_cols = temp_cols;
-        }
     }
-
-    // הקצאת זיכרון למטריצה
-    matrix = malloc(sizeof(int*) * num_lines);
-    if (matrix == NULL) {
-        perror("Error allocating memory");
-        fclose(fp);
-        return 1;
-    }
-    for (int i = 0; i < num_lines; i++) {
-        matrix[i] = malloc(sizeof(int) * num_cols);
-        if (matrix[i] == NULL) {
-            perror("Error allocating memory");
-            free(matrix); // שחרור זיכרון
-            fclose(fp);
-            return 1;
-        }
-    }
-
-    // חזרה לתחילת הקובץ
-    rewind(fp);
-
-    // קריאת מספרים מהקובץ והעתקתם למטריצה
-    for (int i = 0; i < num_lines; i++) {
-        for (int j = 0; j < num_cols; j++) {
-            if (fgets(buffer, sizeof(buffer), fp) == NULL) {
-                break; // הגיעו לסוף הקובץ
-            }
-            token = strtok(buffer, ",");
-            if (token == NULL) {
-                printf("Error reading value at row %d, column %d\n", i, j);
-                continue;
-            }
-            matrix[i][j] = atoi(token);
-        }
-    }
-
-    // סגירת קובץ
     fclose(fp);
-
-    // הדפסת תוכן המטריצה (לא חובה)
-    for (int i = 0; i < num_lines; i++) {
-        for (int j = 0; j < num_cols; j++) {
-            printf("%d ", matrix[i][j]);
-        }
-        printf("\n");
-    }
-
-    // שחרור זיכרון המטריצה
-    for (int i = 0; i < num_lines; i++) {
-        free(matrix[i]);
-    }
-    free(matrix);
-
     return 0;
 }
 
@@ -170,6 +111,7 @@ Node* syntactAnalysis()
 {
     lexicalAnalysis();
     FillTable();
+    CFG();
     //פונקציה זו מנהלת את המחסנית ע"י קריאת רשימת הטוקנים,
     //בדיקה בטבלה במיקום המתאים + הטוקן
     //אם המספר חיובי- פעולת שיפט מכניסים את הטוקן הבא מהרשימה
@@ -182,9 +124,10 @@ Node* syntactAnalysis()
     push(stack, node1);
     // mynode = peek(&stack);
 
-    Token* tokenPtr = *headList;
+   // Token* tokenPtr = *headList;
+    Token* tokenPtr = headList;
 
-    int mystate = NO_ERROR, action, counter, myindex = tokenPtr->index;
+    int mystate = NO_ERROR, action, counter, myindex = tokenPtr->index,newAction;
 
     /*push(&stack, tokenPtr->index);
     tokenPtr = tokenPtr->next;*/
@@ -194,9 +137,17 @@ Node* syntactAnalysis()
     {
         /*state = peek(&stack);
         push(&stack, tokenPtr->index);*/
+        if (mystate == -999 || myindex == -999)
+            action = -999;
+        else
         action = matrix[mystate][myindex];
         if (action == -999)
+        {        
             returnError("syntax error!!!");
+            return;
+
+
+        }
 
         //push(&stack,abs( action));
         if (action == 0)//access
@@ -215,9 +166,10 @@ Node* syntactAnalysis()
         else
         {
             counter = deductions[abs(action)].numToCut;
-            mystate = peekAt(stack, counter)->state;
-            action = matrix[mystate][deductions[abs(action)].valueNumber];
-            mynode = createNode(action, deductions[abs(action)].deduct, deductions[abs(action)].valueNumber);
+            mystate = peekAt(stack, counter+1)->state;
+            newAction = matrix[mystate][deductions[abs(action)].valueNumber];
+            mynode = createNode(newAction, deductions[abs(action)].deduct, deductions[abs(action)].valueNumber);
+           // action = newAction;
             for (int i = 0; i < counter; i++)
             {
                 Node* childNode = pop(stack);
@@ -228,7 +180,8 @@ Node* syntactAnalysis()
 
             push(stack, mynode);
         }
-
+        if (peek(stack)->state == -999)
+            mystate = -999;
         mystate = peek(stack)->state;
         myindex = tokenPtr->index;
     }

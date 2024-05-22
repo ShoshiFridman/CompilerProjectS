@@ -75,19 +75,30 @@ char* mystrtok(char* str, const char* delim) {
         next_token = str;
     }
 
-    if (next_token == NULL) {
+    if (next_token == NULL || *next_token == '\0') {
         return NULL;
     }
 
     token = next_token;
 
-    while (*token != '\0') {
-        if (my_strchr(delim, *token) != NULL) {
-            *token = '\0';
-            next_token = token + 1;
-            break;
-        }
-        token++;
+    while (*next_token != '\0' && my_strchr(delim, *next_token)) {
+        next_token++;
+    }
+
+    if (*next_token == '\0') {
+        next_token = NULL;
+        return token;
+    }
+
+    token = next_token;
+
+    while (*next_token != '\0' && !my_strchr(delim, *next_token)) {
+        next_token++;
+    }
+
+    if (*next_token != '\0') {
+        *next_token = '\0';
+        next_token++;
     }
 
     return token;

@@ -26,7 +26,6 @@
 #define END_STATE_SIZE 40
 #define SIZET 25
 
-
 typedef struct EndState
 {
 	int numToken;
@@ -40,7 +39,6 @@ EndState* end_states_arr[END_STATE_SIZE] = { NULL };
 FILE* fileTokens = NULL;
 
 int x = NO_ERROR;
-
 
 //מילוי מערך המצבים
 typedef struct CurrentState {
@@ -116,77 +114,80 @@ int automate()
 }
 
 //פונקציה שיוצרת רשימה של טוקנים 
-//void MyListOfTokens(char* value, char* nameToken, int index)
-//{
+
+//void MyListOfTokens(char* value, char* nameToken, int index) {
 //	FILE* writeFile = NULL;
 //
-//	tokenPtr = malloc(sizeof(Token));
-//	if (tokenPtr == NULL)
-//	{
-//		printf("Error allocating memory for tokenPtr\n");
+//	// הקצאת זיכרון חדש לצומת חדש
+//	Token* newToken = malloc(sizeof(Token));
+//	if (newToken == NULL) {
+//		printf("Error allocating memory for newToken\n");
 //		exit(1);
 //	}
 //
-//	token1 = malloc(sizeof(Token));
-//	if (token1 == NULL)
-//	{
-//		printf("Error allocating memory for token1\n");
-//		exit(1);
-//	}
-//	tokenPtr = token1;
+//	// מילוי נתוני הצומת החדש
+//	newToken->value = value;
+//	newToken->nameToken = nameToken;
+//	newToken->index = index;
 //
-//	token1->value = value;
-//	token1->nameToken = nameToken;
-//	token1->index = index;
+//	// קישור הצומת החדש לרשימה קיימת
+//	newToken->next = *headList;
+//	*headList = newToken;
 //
-//	token1->next = NULL;
-//	if (tokenPtr != NULL && tokenPtr != GARBAGE)
-//		tokenPtr->next = token1;
-//	//else
-//	*headList = tokenPtr;
-//
+//	// פתיחת קובץ היעד לכתיבה
 //	errno_t er = fopen_s(&writeFile, "C:/Users/User/Desktop/compilerProject/myTokens.txt", "a");
-//
-//	if (writeFile == NULL)
-//	{
+//	if (writeFile == NULL) {
 //		printf("error in the file tokens.txt \n");
 //		exit(1);
 //	}
+//
+//	// כתיבת נתוני האסימון לקובץ
 //	fprintf(writeFile, " %s %s \n", value, nameToken);
 //	fclose(writeFile);
-//
 //}
+
 void MyListOfTokens(char* value, char* nameToken, int index) {
 	FILE* writeFile = NULL;
 
-	// הקצאת זיכרון חדש לצומת חדש
+	// Allocate memory for the new token
 	Token* newToken = malloc(sizeof(Token));
 	if (newToken == NULL) {
 		printf("Error allocating memory for newToken\n");
 		exit(1);
 	}
 
-	// מילוי נתוני הצומת החדש
+	// Fill in the new token data
 	newToken->value = value;
 	newToken->nameToken = nameToken;
 	newToken->index = index;
+	newToken->next = NULL;
 
-	// קישור הצומת החדש לרשימה קיימת
-	newToken->next = *headList;
-	*headList = newToken;
+	// If the list is empty, set the new token as both head and tail
+	if (headList == NULL||headList->value==GARBAGE) {
+		headList = newToken;
+		tailList = newToken;
+		newToken->prev = NULL;
+	}
+	else {
+		// Add the new token to the end of the list
+		if (tailList != NULL) {
+			tailList->next = newToken;
+		}
+		newToken->prev = tailList;
+		tailList = newToken;
+	}
 
-	// פתיחת קובץ היעד לכתיבה
+	// Opening the target file for writing
 	errno_t er = fopen_s(&writeFile, "C:/Users/User/Desktop/compilerProject/myTokens.txt", "a");
 	if (writeFile == NULL) {
 		printf("error in the file tokens.txt \n");
 		exit(1);
 	}
 
-	// כתיבת נתוני האסימון לקובץ
+	// Writing the token data to the file
 	fprintf(writeFile, " %s %s \n", value, nameToken);
 	fclose(writeFile);
 }
-
 int hashFunction(int x)
 {
 	return x % END_STATE_SIZE;
@@ -453,6 +454,7 @@ void FillEndStatesArr() {
 //פונקציה ראשית לניהול הניתוח הלקסיקלי
 void lexicalAnalysis()
 {
+
 	int degel = NO_ERROR, sign = NO_ERROR;
 
 	FILE* file = NULL;
@@ -527,10 +529,10 @@ void lexicalAnalysis()
 				{
 					sign = 1;
 
-					if (characters[j] == tav) {
+					if (characters[j] == nextTav) {
 						word = realloc(word, 2);
 						word[0] = tav;
-						word[1] = characters[j];
+						word[1] = nextTav;
 
 						MyListOfTokens(word, dataArray[mat[i][j]].str, dataArray[mat[i][j]].num);
 						//free(word);

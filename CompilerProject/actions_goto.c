@@ -6,6 +6,7 @@
 #include "mystring.h"
 #include "Stack.h"
 #include "cfg.h"
+#define GARBAGE 0xdcdcdcdcdcdcdcd
 
 #define ROWS 181
 #define COLS 102
@@ -127,7 +128,7 @@ Node* syntactAnalysis()
    // Token* tokenPtr = *headList;
     Token* tokenPtr = headList;
 
-    int mystate = NO_ERROR, action, counter, myindex = tokenPtr->index,newAction;
+    int mystate = NO_ERROR, action, counter, myindex,newAction;
 
     /*push(&stack, tokenPtr->index);
     tokenPtr = tokenPtr->next;*/
@@ -135,6 +136,8 @@ Node* syntactAnalysis()
     while (tokenPtr != NULL)
 
     {
+        myindex = tokenPtr->index;
+
         /*state = peek(&stack);
         push(&stack, tokenPtr->index);*/
         if (mystate == -999 || myindex == -999)
@@ -151,7 +154,12 @@ Node* syntactAnalysis()
 
         //push(&stack,abs( action));
         if (action == 0)//access
+        {   
             ret = pop(stack);
+
+            return ret;
+
+        }
 
         if (action > 0)//shift
         {
@@ -180,11 +188,9 @@ Node* syntactAnalysis()
 
             push(stack, mynode);
         }
-        if (peek(stack)->state == -999)
-            mystate = -999;
+        /*if (peek(stack)->state == -999)
+            mystate = -999;*/
         mystate = peek(stack)->state;
-        myindex = tokenPtr->index;
     }
 
-    return ret;
 }

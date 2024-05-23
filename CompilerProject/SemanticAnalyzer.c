@@ -15,7 +15,7 @@
 #define FOR_STATEMENT 72
 #define WHILE_STATEMENT 73
 #define DO_WHILE_STATEMENT 74
-#define FUNCTION_DEFINITION 74
+#define FUNCTION_DEFINITION 61
 #define BLOCK 64
 #define IF_STATEMENT 71
 #define RightCurlyBrace 5
@@ -214,7 +214,7 @@ void createNewSymbolTable()
 {
     Entry new_hash_table[TABLE_SIZE];
     Entry* new_hash_table_ptr = new_hash_table;
-    push(&mystack, new_hash_table_ptr);
+    push1(&mystack, new_hash_table_ptr);
 
 }
 
@@ -249,7 +249,7 @@ void deepSearch(struct Node* node, int d)
         insert_entry(peek1(&mystack), node->pointers[node->numPointers - 1]->key, node->pointers[node->numPointers]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
 
     //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
-    if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration)
+    if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
     {
         checkIfDeclared(node->key);
     }
@@ -308,7 +308,7 @@ void semanticAnalysis() {
 
     initialize_stack(&mystack);
 
-    push(&mystack, hash_table_ptr);
+    push1(&mystack, hash_table_ptr);
 
     deepSearch(node, 0);
 }

@@ -7,7 +7,6 @@
 #include "mystring.h"
 
 
-//#define GARBAGE 0xdcdcdcdcdcdcdcd
 
 #define MAX_LINES_NUM 20 // Maximum number of lines to read
 #define MAX_STR_SIZE  50 // Maximum size for the string
@@ -575,13 +574,13 @@ void lexicalAnalysis()
 		}
 		tav = fgetc(file);
 	}
-	if (word) {
+	/*if (word) {
 		word = realloc(word, size + 1);
 		word[size] = '\0';
 		overTheWord(word);
 		free(word);
 	}
-	else
+	else*/
 		free(word);
 
 	fclose(file);

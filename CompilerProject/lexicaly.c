@@ -15,7 +15,7 @@
 #define specialTavArr 24
 #define sizeOfNameTOK_OP 10
 #define row 12
-#define column 7
+#define column 12
 #define dollarValue 58
 
 #define DEGEL 0

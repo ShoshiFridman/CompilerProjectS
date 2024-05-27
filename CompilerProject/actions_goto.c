@@ -147,8 +147,7 @@ Node* syntactAnalysis()
         if (action == -999)
         {        
             returnError("syntax error!!!");
-            return;
-
+            exit(0);
 
         }
 

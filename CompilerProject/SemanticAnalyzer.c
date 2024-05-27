@@ -21,7 +21,7 @@
 #define RightCurlyBrace 5
 #define Semicolon 6
 #define binaryOperator 99
-
+#define z 0xFFFFFFFFFFFFFFDF
 
 // Structure to represent a symbol table entry
 typedef struct {
@@ -156,7 +156,7 @@ void checkOperators(struct Node* node1, struct Node* node2)
     Entry* e = NULL;
     Entry* e1 = NULL;
 
-    if (node1 == NULL || node2 == NULL) {
+    if (node1 == NULL || node2 == NULL||node2==z) {
         return;
     }
 
@@ -172,7 +172,7 @@ void checkOperators(struct Node* node1, struct Node* node2)
         e = search_entry(peek1(&mystack), node1->key);
 
     if (node2->numOfToken == 0)
-        e1 = search_entry(peek1(&mystack), node1->key);
+        e1 = search_entry(peek1(&mystack), node2->key);
 
     if (node1->numOfToken != node2->numOfToken || node1->numOfToken + node2->numOfToken != 63 || e != NULL && e->type != node2->numOfToken || e1 != NULL && e1->type != node1->numOfToken || e != NULL && e1 != NULL && e->type != e1->type)
         returnError("semantic error:The values are not of the same type");
@@ -246,7 +246,7 @@ void deepSearch(struct Node* node, int d)
     }
     //הצהרה על משתנה
     if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
-        insert_entry(peek1(&mystack), node->pointers[node->numPointers - 1]->key, node->pointers[node->numPointers]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
+        insert_entry(peek1(&mystack), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
 
     //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
     if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
@@ -256,7 +256,7 @@ void deepSearch(struct Node* node, int d)
     //השמת ערך במשתנה
     if (node->numOfToken == Assignment_Operator && node->parent->numOfToken == optional_initializer)
     {
-        Entry* entry = checkIfDeclared((node->parent->parent->pointers[node->parent->parent->numPointers - 1])->key);
+        Entry* entry = checkIfDeclared((node->parent->parent->pointers[node->parent->parent->numPointers - 2])->key);
 
         if (entry != NULL)
             check(node->parent->pointers[0], entry);
@@ -292,9 +292,9 @@ void deepSearch(struct Node* node, int d)
     if (node->numOfToken == binaryOperator)//בדיקת ערכים מ2 עברי האופרטור
     {
 
-        checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers]);
+        checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers-1]);
     }
-    for (int i = 0; i < node->numPointers; i++) {
+    for (int i = node->numPointers-1; i >=0; i--) {
         deepSearch(node->pointers[i], d);
 
     }

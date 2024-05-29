@@ -119,7 +119,7 @@ Node* syntactAnalysis()
     //אם רדיוס- הולכים לשורה המתאימה בטבלת הדקדוק ומונים כמה טוקנים יש שם 
     // מוציאים פי שניים מהטוקנים מספרים מהמחסנית ומכניסים במקום את הגוזר של הכלל. 
     Stack* stack = createStack();
-    Node* node1 = createNode(NO_ERROR, "$", 58);
+    Node* node1 = createNode(NO_ERROR, "$" ,58);
     Node* mynode;
     Node* ret = NULL;
     push(stack, node1);
@@ -162,7 +162,7 @@ Node* syntactAnalysis()
 
         if (action > 0)//shift
         {
-            node1 = createNode(action, tokenPtr->nameToken, tokenPtr->index);
+            node1 = createNode(action, tokenPtr->value, tokenPtr->index);
 
             push(stack, node1);
 

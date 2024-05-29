@@ -25,7 +25,7 @@
 
 // Structure to represent a symbol table entry
 typedef struct {
-    char key[50];//id
+    char key[15];//id
     int type;//מספר המבטא את סוג המשתנה
     char value[20];
 } Entry;
@@ -38,19 +38,19 @@ MyStack mystack;
 
 
 // Function to initialize the stack
-void initialize_stack(MyStack* stack) {
-    stack->top = -1;
+void initialize_stack() {
+    mystack.top = -1;
 }
 
-Entry* getNextItem(MyStack* stack) {
-    if (stack->top < 0) {
+Entry* getNextItem() {
+    if (mystack.top < 0) {
         return NULL; // Stack is empty
     }
 
     static int currentIndex = 0; // Static variable to keep track of current index
 
-    if (currentIndex <= stack->top) {
-        Entry* currentItem = stack->items[currentIndex];
+    if (currentIndex <= mystack.top) {
+        Entry* currentItem = mystack.items[currentIndex];
         currentIndex++;
         return currentItem;
     }
@@ -60,33 +60,41 @@ Entry* getNextItem(MyStack* stack) {
 }
 
 // Function to push an item onto the stack
-void push1(MyStack* stack, Entry* item) {
-    if (stack->top >= MAX_STACK_SIZE - 1) {
+void push1(/*Entry(*item)[TABLE_SIZE]*/ ) {
+    if (mystack.top >= MAX_STACK_SIZE - 1) {
         printf("Stack overflow\n");
         return;
-    }
-    stack->items[++stack->top] = item;
-}
+    } 
+    Entry new_hash_table[TABLE_SIZE];
+Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
+mystack.items[++mystack.top] = &new_hash_table_ptr;
+
+
+    /*mystack.items[++mystack.top] = new_hash_table_ptr;
+    Entry new_hash_table[TABLE_SIZE];
+    Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
+    mystack.items[++mystack.top] = &new_hash_table_ptr;*/
+ }
 
 // Function to pop an item from the stack
-Entry* pop1(MyStack* stack) {
-    if (stack->top < 0) {
+Entry* pop1() {
+    if (mystack.top < 0) {
         printf("Stack is empty\n");
         return NULL;
     }
-    return stack->items[stack->top--];
+    return mystack.items[mystack.top--];
 }
 
-Entry* peek1(MyStack* stack) {
-    if (stack->top < 0) {
+Entry* peek1() {
+    if (mystack.top < 0) {
         printf("Stack is empty\n");
         return NULL;
     }
-    return stack->items[stack->top];
+    return mystack.items[mystack.top];
 }
 
 Entry hash_table[TABLE_SIZE];		// Hash table to store symbol table entries
-Entry* hash_table_ptr = hash_table; // Pointer to the hash table on the stack
+Entry(* hash_table_ptr)[TABLE_SIZE] = &hash_table; // Pointer to the hash table on the stack
 
 // Hash function to calculate index for key
 int hash_function(char* key) {
@@ -98,25 +106,29 @@ int hash_function(char* key) {
 }
 
 // Function to insert an entry into the symbol table
-void insert_entry(Entry* table, char* key, int type) {
+void insert_entry(Entry(*table)[TABLE_SIZE], char* key, int type) {
     int index = hash_function(key);
-    myStrcpy(table[index].key, key);
+    myStrcpy((*table)[index].key, key);
 
-    table[index].type = type;
+    (*table)[index].type = type;
     // Dynamically allocate memory for the value if needed
 }
 
-void insert_value(Entry* table, char* key, char* val) {
+void insert_value(Entry(*table)[TABLE_SIZE], char* key, char* val) {
     int index = hash_function(key);
-    myStrcpy(table[index].value, val);
+    myStrcpy((*table)[index].value, val);
 }
 
 // Function to search for an entry in the symbol table
-Entry* search_entry(Entry* ht, char* key)
+Entry* search_entry(Entry(*ht)[TABLE_SIZE], char* key)
 {
     int index = hash_function(key);
-    if (myStrcmp(ht[index].key, key) == 0) {
-        return &ht[index];
+    if (myStrcmp((*ht)[index].key, key) == 0) {
+        Entry* ent = (Entry*)malloc(sizeof(Entry));
+        myStrcpy(ent->key,  (*ht)[index].key);
+        ent->type = (*ht)[index].type;
+        myStrcpy(ent->value, (*ht)[index].value);
+        return ent;
     }
     else {
         return NULL;
@@ -135,11 +147,11 @@ void check(struct Node* node, Entry* Item)
 
     if (node->numPointers == 0) {
         if (node->numOfToken == 0)
-            e = search_entry(peek1(&mystack), node->key);
+            e = search_entry(peek1(), node->key);
         if (node->numOfToken == 31 && Item->type != 51 || node->numOfToken == 32 && Item->type != 52 || node->numOfToken == 33 && Item->type != 55 || node->numOfToken == 34 && Item->type != 54 || e != NULL && e->type != Item->type)
             returnError("A value was entered that does not match the definition");
         else
-            insert_value(peek1(&mystack), Item->key, node->key);//הכנסת הערך של ההשמה לשורה בטבלה
+            insert_value(peek1(), Item->key, node->key);//הכנסת הערך של ההשמה לשורה בטבלה
 
     }
     else {
@@ -169,10 +181,10 @@ void checkOperators(struct Node* node1, struct Node* node2)
     }
 
     if (node1->numOfToken == 0)
-        e = search_entry(peek1(&mystack), node1->key);
+        e = search_entry(peek1(), node1->key);
 
     if (node2->numOfToken == 0)
-        e1 = search_entry(peek1(&mystack), node2->key);
+        e1 = search_entry(peek1(), node2->key);
 
     if (node1->numOfToken != node2->numOfToken || node1->numOfToken + node2->numOfToken != 63 || e != NULL && e->type != node2->numOfToken || e1 != NULL && e1->type != node1->numOfToken || e != NULL && e1 != NULL && e->type != e1->type)
         returnError("semantic error:The values are not of the same type");
@@ -183,7 +195,7 @@ Entry* searchInStack(char* key)//חיפוש בכל טבלאות הסמלים
     Entry* found_Entry;
     Entry* currentItem;
     int degel = 0;
-    while ((currentItem = getNextItem(&mystack)) != NULL && !degel)
+    while ((currentItem = getNextItem()) != NULL && !degel)
     {
         found_Entry = search_entry(currentItem, key);
         if (found_Entry != NULL)
@@ -210,13 +222,16 @@ Entry* checkIfDeclared(char* key)
     return entry;
 }
 
-void createNewSymbolTable()
-{
-    Entry new_hash_table[TABLE_SIZE];
-    Entry* new_hash_table_ptr = new_hash_table;
-    push1(&mystack, new_hash_table_ptr);
-
-}
+//void createNewSymbolTable()
+//{
+//    
+//    Entry new_hash_table[TABLE_SIZE];
+//    Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
+//    push1(&new_hash_table_ptr);
+//
+//
+//
+//}
 
 int searchBlock(struct Node* node)
 {
@@ -246,7 +261,7 @@ void deepSearch(struct Node* node, int d)
     }
     //הצהרה על משתנה
     if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
-        insert_entry(peek1(&mystack), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
+        insert_entry(peek1(), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
 
     //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
     if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
@@ -264,15 +279,17 @@ void deepSearch(struct Node* node, int d)
     //התחלת סקופ של פונקציה
     if (node->numOfToken == FUNCTION_DEFINITION)
     {
-        createNewSymbolTable();
+        push1();
+        //createNewSymbolTable();
         d = 1;
 
     }
     //התחלת סקופ של לולאה
     if (node->numOfToken == FOR_STATEMENT || node->numOfToken == WHILE_STATEMENT || node->numOfToken == DO_WHILE_STATEMENT)
     {
+        push1();
 
-        createNewSymbolTable();
+       // createNewSymbolTable();
         d = searchBlock(node);//אם יש סלסלים בלולאה
         if (!d)
             d = 2;
@@ -280,13 +297,13 @@ void deepSearch(struct Node* node, int d)
 
     if (d == 1 && node->numOfToken == RightCurlyBrace)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
     {
-        pop1(&mystack);
+        pop1();
         d = 0;
 
     }
     if (d == 2 && node->numOfToken == Semicolon && node->parent->numOfToken != FOR_STATEMENT)//הוצאת הטבלה מהמחסנית כשנתקלים בנקודה פסיק
     {
-        pop1(&mystack);
+        pop1();
         d = 0;
     }
     if (node->numOfToken == binaryOperator)//בדיקת ערכים מ2 עברי האופרטור
@@ -306,9 +323,10 @@ void semanticAnalysis() {
 
     Node* node = syntactAnalysis();
 
-    initialize_stack(&mystack);
+    initialize_stack();
 
-    push1(&mystack, hash_table_ptr);
+    push1();
+
 
     deepSearch(node, 0);
 }

@@ -197,15 +197,16 @@ int findToken(int* state, char* word)
 {
 	// שימוש בטבלת גיבוב וחיסכון של מעבר על כל המערך
 	int i = hashFunction(*state);
-	while (end_states_arr[i] != NULL/*&&end_states_arr[i]->next != NULL*/)
+	EndState * ptr= end_states_arr[i];
+	while (ptr != NULL/*&&end_states_arr[i]->next != NULL*/)
 	{
-		x = end_states_arr[i]->numToken;
+		x = ptr->numToken;
 		if (x == *state)
 		{
-			MyListOfTokens(word, end_states_arr[i]->nameToken, end_states_arr[i]->num);
+			MyListOfTokens(word, ptr->nameToken,ptr->num);
 			return 1;
 		}
-		end_states_arr[i] = end_states_arr[i]->next;
+		ptr = ptr->next;
 	}
 
 	return 0;
@@ -222,8 +223,14 @@ void overTheWord(char* word)
 	{
 		//if(currentStateArr[i]!= 0x0000000000000000)
 		cs = *currentStateArr[i];
-		while (cs.csptr != NULL && ((int)cs.letter != (int)word[w]))
+		while (cs.csptr != NULL && ((int)cs.letter != (int)word[w]) && !degel)
+		{
+			if (cs.letter < 0)
+				degel = 1;
+			else
 			cs = *(cs.csptr);
+
+		}
 
 		w++;
 		j = i;

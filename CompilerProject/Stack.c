@@ -24,6 +24,12 @@ struct Node* createNode(int state, char* key, int numOfToken) {
         free(newNode);
         exit(1); // Exit the program or handle the error accordingly
     }
+    //newNode->myWord = my_strdup(myWord); // העתקת המחרוזת כדי למנוע בעיות זיכרון
+    //if (newNode->myWord == NULL) {
+    //    fprintf(stderr, "Error: Memory allocation for myWord failed\n");
+    //    free(myWord);
+    //    exit(1); // Exit the program or handle the error accordingly
+    //}
     newNode->numOfToken = numOfToken;
     newNode->state = state;
     newNode->numPointers = 0;

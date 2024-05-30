@@ -21,13 +21,48 @@
 #define RightCurlyBrace 5
 #define Semicolon 6
 #define binaryOperator 99
+#define SG 63
+#define NA 51
+#define LB 32
+#define NB 52
+#define LG 33
+#define NH 55
+#define LD 34
+#define ND 54
+
+
 #define z 0xFFFFFFFFFFFFFFDF
+#define ACTION_NULL(node) if (IS_NULL(node))
+#define ACTION_LOCAL_VAR_DECL(node) if (IS_LOCAL_VAR_DECL(node))
+#define ACTION_ID(node) if (IS_ID(node))
+#define ACTION_FUNC_DEF(node) if (IS_FUNC_DEF(node))
+#define ACTION_ASSIGN_OP(node) if (IS_ASSIGN_OP(node))
+#define ACTION_OPT_INITIALIZER(node) if (IS_OPT_INITIALIZER(node))
+#define ACTION_FOR_STMT(node) if (IS_FOR_STMT(node))
+#define ACTION_WHILE_STMT(node) if (IS_WHILE_STMT(node))
+#define ACTION_DO_WHILE_STMT(node) if (IS_DO_WHILE_STMT(node))
+#define ACTION_RIGHT_CURLY_BRACE(node) if (IS_RIGHT_CURLY_BRACE(node))
+#define ACTION_SEMICOLON(node) if (IS_SEMICOLON(node))
+#define ACTION_BINARY_OP(node) if (IS_BINARY_OP(node))
+
+#define IS_NULL(node) (node == NULL)
+#define IS_LOCAL_VAR_DECL(node) (node->numOfToken == Local_variable_declaration)
+#define IS_ID(node) (node->numOfToken == ID)
+#define IS_FUNC_DEF(node) (node->numOfToken == FUNCTION_DEFINITION)
+#define IS_ASSIGN_OP(node) (node->numOfToken == Assignment_Operator)
+#define IS_OPT_INITIALIZER(node) (node->parent->numOfToken == optional_initializer)
+#define IS_FOR_STMT(node) (node->numOfToken == FOR_STATEMENT)
+#define IS_WHILE_STMT(node) (node->numOfToken == WHILE_STATEMENT)
+#define IS_DO_WHILE_STMT(node) (node->numOfToken == DO_WHILE_STATEMENT)
+#define IS_RIGHT_CURLY_BRACE(node) (node->numOfToken == RightCurlyBrace)
+#define IS_SEMICOLON(node) (node->numOfToken == Semicolon)
+#define IS_BINARY_OP(node) (node->numOfToken == binaryOperator)
 
 // Structure to represent a symbol table entry
 typedef struct {
     char key[15];//id
     int type;//מספר המבטא את סוג המשתנה
-    char value[20];
+    char valuee[20];
 } Entry;
 
 typedef struct {
@@ -67,7 +102,7 @@ void push1(/*Entry(*item)[TABLE_SIZE]*/ ) {
     } 
     Entry new_hash_table[TABLE_SIZE];
 Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
-mystack.items[++mystack.top] = &new_hash_table_ptr;
+  mystack.items[++mystack.top] = new_hash_table_ptr;
 
 
     /*mystack.items[++mystack.top] = new_hash_table_ptr;
@@ -116,7 +151,7 @@ void insert_entry(Entry(*table)[TABLE_SIZE], char* key, int type) {
 
 void insert_value(Entry(*table)[TABLE_SIZE], char* key, char* val) {
     int index = hash_function(key);
-    myStrcpy((*table)[index].value, val);
+    myStrcpy((*table)[index].valuee, val);
 }
 
 // Function to search for an entry in the symbol table
@@ -127,7 +162,7 @@ Entry* search_entry(Entry(*ht)[TABLE_SIZE], char* key)
         Entry* ent = (Entry*)malloc(sizeof(Entry));
         myStrcpy(ent->key,  (*ht)[index].key);
         ent->type = (*ht)[index].type;
-        myStrcpy(ent->value, (*ht)[index].value);
+        myStrcpy(ent->valuee, (*ht)[index].valuee);
         return ent;
     }
     else {
@@ -148,7 +183,7 @@ void check(struct Node* node, Entry* Item)
     if (node->numPointers == 0) {
         if (node->numOfToken == 0)
             e = search_entry(peek1(), node->key);
-        if (node->numOfToken == 31 && Item->type != 51 || node->numOfToken == 32 && Item->type != 52 || node->numOfToken == 33 && Item->type != 55 || node->numOfToken == 34 && Item->type != 54 || e != NULL && e->type != Item->type)
+        if (node->numOfToken == 31 && Item->type != NA || node->numOfToken == LB && Item->type != NB || node->numOfToken == LG && Item->type != NH || node->numOfToken == LD && Item->type != ND || e != NULL && e->type != Item->type)
             returnError("A value was entered that does not match the definition");
         else
             insert_value(peek1(), Item->key, node->key);//הכנסת הערך של ההשמה לשורה בטבלה
@@ -186,18 +221,35 @@ void checkOperators(struct Node* node1, struct Node* node2)
     if (node2->numOfToken == 0)
         e1 = search_entry(peek1(), node2->key);
 
-    if (node1->numOfToken != node2->numOfToken || node1->numOfToken + node2->numOfToken != 63 || e != NULL && e->type != node2->numOfToken || e1 != NULL && e1->type != node1->numOfToken || e != NULL && e1 != NULL && e->type != e1->type)
+    if (node1->numOfToken != node2->numOfToken || node1->numOfToken + node2->numOfToken != SG || e != NULL && e->type != node2->numOfToken || e1 != NULL && e1->type != node1->numOfToken || e != NULL && e1 != NULL && e->type != e1->type)
         returnError("semantic error:The values are not of the same type");
 }
 
 Entry* searchInStack(char* key)//חיפוש בכל טבלאות הסמלים
 {
     Entry* found_Entry;
+    int degel = 0;
+
+    // Iterate over each symbol table in the stack
+    for (int i = mystack.top; i >= 0 && !degel; i--) {
+        Entry(*currentItem)[TABLE_SIZE] = mystack.items[i];
+
+        for (int j = 0; j < TABLE_SIZE; j++) {
+            found_Entry = search_entry(currentItem, key);
+            if (found_Entry != NULL) {
+                degel = 1;
+                return found_Entry;
+            }
+        }
+    }
+
+    return NULL;
+    /*Entry* found_Entry;
     Entry* currentItem;
     int degel = 0;
     while ((currentItem = getNextItem()) != NULL && !degel)
     {
-        found_Entry = search_entry(currentItem, key);
+       found_Entry = search_entry(currentItem, key);
         if (found_Entry != NULL)
         {
             degel = 1;
@@ -205,7 +257,7 @@ Entry* searchInStack(char* key)//חיפוש בכל טבלאות הסמלים
         }
 
     }
-    return NULL;
+    return NULL;*/
 }
 
 //פונקצייה שבודקת האם משתנה מוגדר בטבלת סמלים
@@ -256,65 +308,116 @@ int searchBlock(struct Node* node)
 
 void deepSearch(struct Node* node, int d)
 {
-    if (node == NULL) {
+    ACTION_NULL(node) {
         return;
     }
-    //הצהרה על משתנה
-    if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
-        insert_entry(peek1(), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
 
-    //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
-    if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
-    {
+    ACTION_LOCAL_VAR_DECL(node) {
+        insert_entry(peek1(), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers - 1]->pointers[0]->numOfToken);
+    }
+
+    ACTION_ID(node) {
         checkIfDeclared(node->key);
     }
-    //השמת ערך במשתנה
-    if (node->numOfToken == Assignment_Operator && node->parent->numOfToken == optional_initializer)
-    {
+
+    ACTION_ASSIGN_OP(node) {
         Entry* entry = checkIfDeclared((node->parent->parent->pointers[node->parent->parent->numPointers - 2])->key);
 
         if (entry != NULL)
             check(node->parent->pointers[0], entry);
     }
-    //התחלת סקופ של פונקציה
-    if (node->numOfToken == FUNCTION_DEFINITION)
-    {
+
+    ACTION_FUNC_DEF(node) {
         push1();
-        //createNewSymbolTable();
         d = 1;
-
     }
-    //התחלת סקופ של לולאה
-    if (node->numOfToken == FOR_STATEMENT || node->numOfToken == WHILE_STATEMENT || node->numOfToken == DO_WHILE_STATEMENT)
-    {
-        push1();
 
-       // createNewSymbolTable();
-        d = searchBlock(node);//אם יש סלסלים בלולאה
+    ACTION_FOR_STMT(node) {
+        push1();
+        d = searchBlock(node);
         if (!d)
             d = 2;
     }
 
-    if (d == 1 && node->numOfToken == RightCurlyBrace)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
-    {
-        pop1();
-        d = 0;
-
-    }
-    if (d == 2 && node->numOfToken == Semicolon && node->parent->numOfToken != FOR_STATEMENT)//הוצאת הטבלה מהמחסנית כשנתקלים בנקודה פסיק
-    {
+    ACTION_RIGHT_CURLY_BRACE(node) {
         pop1();
         d = 0;
     }
-    if (node->numOfToken == binaryOperator)//בדיקת ערכים מ2 עברי האופרטור
-    {
 
-        checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers-1]);
+    ACTION_SEMICOLON(node) {
+        if (node->parent->numOfToken != FOR_STATEMENT) {
+            pop1();
+            d = 0;
+        }
     }
-    for (int i = node->numPointers-1; i >=0; i--) {
+
+    ACTION_BINARY_OP(node) {
+        checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers - 1]);
+    }
+
+    for (int i = node->numPointers - 1; i >= 0; i--) {
         deepSearch(node->pointers[i], d);
-
     }
+   
+    //if (node == NULL) {
+    //    return;
+    //}
+    //הצהרה על משתנה
+    //if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
+    //    insert_entry(peek1(), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
+
+    //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
+    //if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
+    //{
+    //    checkIfDeclared(node->key);
+    //}
+    //השמת ערך במשתנה
+    //if (node->numOfToken == Assignment_Operator && node->parent->numOfToken == optional_initializer)
+    //{
+    //    Entry* entry = checkIfDeclared((node->parent->parent->pointers[node->parent->parent->numPointers - 2])->key);
+
+    //    if (entry != NULL)
+    //        check(node->parent->pointers[0], entry);
+    //}
+    //התחלת סקופ של פונקציה
+    //if (node->numOfToken == FUNCTION_DEFINITION)
+    //{
+    //    push1();
+    //    createNewSymbolTable();
+    //    d = 1;
+
+    //}
+    //התחלת סקופ של לולאה
+    //if (node->numOfToken == FOR_STATEMENT || node->numOfToken == WHILE_STATEMENT || node->numOfToken == DO_WHILE_STATEMENT)
+    //{
+    //    push1();
+
+    //    createNewSymbolTable();
+    //    d = searchBlock(node);//אם יש סלסלים בלולאה
+    //    if (!d)
+    //        d = 2;
+    //}
+
+    //if (d == 1 && node->numOfToken == RightCurlyBrace)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
+    //{
+    //    pop1();
+    //    d = 0;
+
+    //}
+    //if (d == 2 && node->numOfToken == Semicolon && node->parent->numOfToken != FOR_STATEMENT)//הוצאת הטבלה מהמחסנית כשנתקלים בנקודה פסיק
+    //{
+    //    pop1();
+    //    d = 0;
+    //}
+    //if (node->numOfToken == binaryOperator)//בדיקת ערכים מ2 עברי האופרטור
+    //{
+
+    //    checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers-1]);
+    //}
+    //for (int i = node->numPointers-1; i >=0; i--) {
+    //    deepSearch(node->pointers[i], d);
+
+    //}
 }
 
 Node* syntactAnalysis();
@@ -335,4 +438,6 @@ void semanticAnalysis() {
 void main()
 {
     semanticAnalysis();
+    returnError("The program is finishes!");
+
 }

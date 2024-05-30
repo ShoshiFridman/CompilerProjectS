@@ -28,7 +28,7 @@
 typedef struct EndState
 {
 	int numToken;
-	char nameToken[SIZET];
+	char nameToken1[SIZET];
 	int num;
 	struct EndState* next;
 } EndState;
@@ -145,7 +145,7 @@ int automate()
 //	fclose(writeFile);
 //}
 
-void MyListOfTokens(char* value, char* nameToken, int index) {
+void MyListOfTokens(char* value1, char* nameTokenn, int index) {
 	FILE* writeFile = NULL;
 
 	// Allocate memory for the new token
@@ -156,8 +156,8 @@ void MyListOfTokens(char* value, char* nameToken, int index) {
 	}
 
 	// Fill in the new token data
-	newToken->value = value;
-	newToken->nameToken = nameToken;
+	newToken->value = value1;
+	newToken->nameToken = nameTokenn;
 	newToken->index = index;
 	newToken->next = NULL;
 
@@ -184,7 +184,7 @@ void MyListOfTokens(char* value, char* nameToken, int index) {
 	}
 
 	// Writing the token data to the file
-	fprintf(writeFile, " %s %s \n", value, nameToken);
+	fprintf(writeFile, " %s %s \n", value1, nameTokenn);
 	fclose(writeFile);
 }
 int hashFunction(int x)
@@ -195,6 +195,20 @@ int hashFunction(int x)
 // שמקבלת מצב ומילה ומחפשת במערך המצבים הסופיים את הטוקן שמתאים למילה הספציפיתפונקציה
 int findToken(int* state, char* word)
 {
+	//// שימוש בטבלת גיבוב וחיסכון של מעבר על כל המערך
+	//int i = hashFunction(*state);
+	//while (end_states_arr[i] != NULL/*&&end_states_arr[i]->next != NULL*/)
+	//{
+	//	x = end_states_arr[i]->numToken;
+	//	if (x == *state)
+	//	{
+	//		MyListOfTokens(word, end_states_arr[i]->nameToken, end_states_arr[i]->num);
+	//		return 1;
+	//	}
+	//	end_states_arr[i] = end_states_arr[i]->next;
+	//}
+
+	//return 0;
 	// שימוש בטבלת גיבוב וחיסכון של מעבר על כל המערך
 	int i = hashFunction(*state);
 	EndState * ptr= end_states_arr[i];
@@ -203,7 +217,7 @@ int findToken(int* state, char* word)
 		x = ptr->numToken;
 		if (x == *state)
 		{
-			MyListOfTokens(word, ptr->nameToken,ptr->num);
+			MyListOfTokens(word, ptr->nameToken1,ptr->num);
 			return 1;
 		}
 		ptr = ptr->next;
@@ -391,7 +405,7 @@ void FillEndStatesArr() {
 		exit(1);
 	}
 
-	while (fscanf(fileTokens, "%d %s %d", &(endState.numToken), endState.nameToken, &(endState.num)) != EOF && x <= END_STATE_SIZE)
+	while (fscanf(fileTokens, "%d %s %d", &(endState.numToken), endState.nameToken1, &(endState.num)) != EOF && x <= END_STATE_SIZE)
 
 	{
 		endState.next = NULL;
@@ -404,7 +418,7 @@ void FillEndStatesArr() {
 			end_states_arr[x]->numToken = endState.numToken;
 			end_states_arr[x]->num = endState.num;
 			end_states_arr[x]->next = NULL;
-			myStrcpy(end_states_arr[x]->nameToken, endState.nameToken);
+			myStrcpy(end_states_arr[x]->nameToken1, endState.nameToken1);
 
 
 		}
@@ -420,7 +434,7 @@ void FillEndStatesArr() {
 			pointer->next->numToken = endState.numToken;
 			pointer->next->num = endState.num;
 			pointer->next->next = NULL;
-			myStrcpy(end_states_arr[x]->next->nameToken, endState.nameToken);
+			myStrcpy(end_states_arr[x]->next->nameToken1, endState.nameToken1);
 
 		}
 		/*x = endState.numToken % END_STATE_SIZE;

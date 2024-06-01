@@ -156,8 +156,10 @@ void MyListOfTokens(char* value1, char* nameTokenn, int index) {
 	}
 
 	// Fill in the new token data
-	newToken->value = value1;
-	newToken->nameToken = nameTokenn;
+	newToken->value = malloc(myStrlen(value1));
+	myStrcpy(newToken->value, value1);
+	newToken->nameToken = malloc(myStrlen(nameTokenn));
+	myStrcpy(newToken->nameToken, nameTokenn);
 	newToken->index = index;
 	newToken->next = NULL;
 
@@ -471,6 +473,16 @@ void FillEndStatesArr() {
 }
 
 
+void* RealocAndOverwrite(void* address, size_t new_size)
+{
+	size_t old_size = new_size - 1;
+	void* buffer = malloc(old_size);
+	memcpy(buffer, address, old_size * sizeof(char));
+	address = realloc(address, new_size);
+	memcpy(address, buffer, old_size * sizeof(char));
+}
+
+
 //פונקציה ראשית לניהול הניתוח הלקסיקלי
 void lexicalAnalysis()
 {
@@ -528,7 +540,7 @@ void lexicalAnalysis()
 			{
 
 				if (size > 1) {
-					word = realloc(word, size);
+					word = RealocAndOverwrite(word, size);
 					word[size - 1] = '\0';
 					overTheWord(word);
 					degel = DEGEL;
@@ -549,15 +561,14 @@ void lexicalAnalysis()
 				{
 					sign = 1;
 
-					if (characters[j] == nextTav) {
-						word = realloc(word, 2);
-						word[0] = tav;
-						word[1] = nextTav;
+					if (characters[j] == nextTav)
+					{
+						char tavWord[2];
+						tavWord[0] = tav;
+						tavWord[1] = nextTav;
 
-						MyListOfTokens(word, dataArray[mat[i][j]].str, dataArray[mat[i][j]].num);
-						//free(word);
+						MyListOfTokens(tavWord, dataArray[mat[i][j]].str, dataArray[mat[i][j]].num);
 
-						word = NULL;
 						degel = 1;
 						sign = 2;
 					}
@@ -575,12 +586,10 @@ void lexicalAnalysis()
 
 				if (!degel)
 				{
-					word = realloc(word, 2);
-					word[0] = tav;
-					word[1] = '\0';
-					overTheWord(word);
-
-
+					char tavWord[2];
+					tavWord[0] = tav;
+					tavWord[1] = '\0';
+					overTheWord(tavWord);
 				}
 
 				size = 0;
@@ -589,7 +598,7 @@ void lexicalAnalysis()
 
 		if (size)
 		{
-			word = realloc(word, size);
+			word = RealocAndOverwrite(word, size);
 			word[size - 1] = tav;
 
 		}

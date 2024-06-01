@@ -274,16 +274,16 @@ Entry* checkIfDeclared(char* key)
     return entry;
 }
 
-//void createNewSymbolTable()
-//{
-//    
-//    Entry new_hash_table[TABLE_SIZE];
-//    Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
-//    push1(&new_hash_table_ptr);
-//
-//
-//
-//}
+void createNewSymbolTable()
+{
+    
+    Entry new_hash_table[TABLE_SIZE];
+    Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
+    push1(&new_hash_table_ptr);
+
+
+
+}
 
 int searchBlock(struct Node* node)
 {
@@ -308,7 +308,7 @@ int searchBlock(struct Node* node)
 
 void deepSearch(struct Node* node, int d)
 {
-    ACTION_NULL(node) {
+    /*ACTION_NULL(node) {
         return;
     }
 
@@ -357,67 +357,67 @@ void deepSearch(struct Node* node, int d)
 
     for (int i = node->numPointers - 1; i >= 0; i--) {
         deepSearch(node->pointers[i], d);
-    }
+    }*/
    
-    //if (node == NULL) {
-    //    return;
-    //}
+    if (node == NULL) {
+        return;
+    }
     //הצהרה על משתנה
-    //if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
-    //    insert_entry(peek1(), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
+    if (node->numOfToken == Local_variable_declaration)//local-variable-declaration
+        insert_entry(peek1(), node->pointers[node->numPointers - 2]->key, node->pointers[node->numPointers-1]->pointers[0]->numOfToken);//הכנסת שורה לטבלת סמלים שמכילה את הערך ואת הסוג
 
-    //בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
-    //if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
-    //{
-    //    checkIfDeclared(node->key);
-    //}
-    //השמת ערך במשתנה
-    //if (node->numOfToken == Assignment_Operator && node->parent->numOfToken == optional_initializer)
-    //{
-    //    Entry* entry = checkIfDeclared((node->parent->parent->pointers[node->parent->parent->numPointers - 2])->key);
+   // בכל התקלות בID בדיקה אם לא מוגדר בטבלת סמלים
+    if (node->numOfToken == ID && node->parent->numOfToken != Local_variable_declaration&& node->parent->numOfToken != FUNCTION_DEFINITION)
+    {
+        checkIfDeclared(node->key);
+    }
+   // השמת ערך במשתנה
+    if (node->numOfToken == Assignment_Operator && node->parent->numOfToken == optional_initializer)
+    {
+        Entry* entry = checkIfDeclared((node->parent->parent->pointers[node->parent->parent->numPointers - 2])->key);
 
-    //    if (entry != NULL)
-    //        check(node->parent->pointers[0], entry);
-    //}
+        if (entry != NULL)
+            check(node->parent->pointers[0], entry);
+    }
     //התחלת סקופ של פונקציה
-    //if (node->numOfToken == FUNCTION_DEFINITION)
-    //{
-    //    push1();
-    //    createNewSymbolTable();
-    //    d = 1;
+    if (node->numOfToken == FUNCTION_DEFINITION)
+    {
+        push1();
+        //createNewSymbolTable();
+        d = 1;
 
-    //}
-    //התחלת סקופ של לולאה
-    //if (node->numOfToken == FOR_STATEMENT || node->numOfToken == WHILE_STATEMENT || node->numOfToken == DO_WHILE_STATEMENT)
-    //{
-    //    push1();
+    }
+   // התחלת סקופ של לולאה
+    if (node->numOfToken == FOR_STATEMENT || node->numOfToken == WHILE_STATEMENT || node->numOfToken == DO_WHILE_STATEMENT)
+    {
+        push1();
 
-    //    createNewSymbolTable();
-    //    d = searchBlock(node);//אם יש סלסלים בלולאה
-    //    if (!d)
-    //        d = 2;
-    //}
+        createNewSymbolTable();
+        d = searchBlock(node);//אם יש סלסלים בלולאה
+        if (!d)
+            d = 2;
+    }
 
-    //if (d == 1 && node->numOfToken == RightCurlyBrace)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
-    //{
-    //    pop1();
-    //    d = 0;
+    if (d == 1 && node->numOfToken == RightCurlyBrace)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
+    {
+        pop1();
+        d = 0;
 
-    //}
-    //if (d == 2 && node->numOfToken == Semicolon && node->parent->numOfToken != FOR_STATEMENT)//הוצאת הטבלה מהמחסנית כשנתקלים בנקודה פסיק
-    //{
-    //    pop1();
-    //    d = 0;
-    //}
-    //if (node->numOfToken == binaryOperator)//בדיקת ערכים מ2 עברי האופרטור
-    //{
+    }
+    if (d == 2 && node->numOfToken == Semicolon && node->parent->numOfToken != FOR_STATEMENT)//הוצאת הטבלה מהמחסנית כשנתקלים בנקודה פסיק
+    {
+        pop1();
+        d = 0;
+    }
+    if (node->numOfToken == binaryOperator)//בדיקת ערכים מ2 עברי האופרטור
+    {
 
-    //    checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers-1]);
-    //}
-    //for (int i = node->numPointers-1; i >=0; i--) {
-    //    deepSearch(node->pointers[i], d);
+        checkOperators(node->parent->pointers[0], node->parent->pointers[node->parent->numPointers-1]);
+    }
+    for (int i = node->numPointers-1; i >=0; i--) {
+        deepSearch(node->pointers[i], d);
 
-    //}
+    }
 }
 
 Node* syntactAnalysis();
@@ -438,6 +438,6 @@ void semanticAnalysis() {
 void main()
 {
     semanticAnalysis();
-    returnError("The program is finishes!");
+    //returnError("The program is finishes!");
 
 }

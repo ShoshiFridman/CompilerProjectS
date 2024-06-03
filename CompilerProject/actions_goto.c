@@ -40,71 +40,7 @@ int FillTable() {
 }
 
 
-//int FillTable() {
-//    FILE* fp = NULL;
-//    char buffer[1024];
-//    int num_lines, num_cols;
-//
-//    // פתיחת קובץ CSV
-//    errno_t er = fopen_s(&fp, "C:/Users/User/Desktop/compilerProject/actions-goto-file.csv", "r");
-//    if (fp == NULL) {
-//        perror("Error opening file");
-//        return 1;
-//    }
-//
-//    // ספירת שורות ועמודות
-//    num_lines = 0;
-//    num_cols = 0;
-//    while (fgets(buffer, sizeof(buffer), fp) && !feof(fp)) {
-//        num_lines++;
-//        int temp_cols = 0;
-//        for (int i = 0; buffer[i] != '\0'; i++) {
-//            if (buffer[i] == ',') {
-//                temp_cols++;
-//            }
-//        }
-//        if (num_cols == 0) {
-//            num_cols = temp_cols;
-//        }
-//        /*else if (num_cols != temp_cols) {
-//            // שגיאה: מספר העמודות אינו אחיד
-//            return 1;
-//        }*/
-//    }
-//
-//    // הקצאת זיכרון למטריצה
-//    matrix = malloc(sizeof(int*) * num_lines);
-//    if (matrix == NULL) {
-//        perror("Error allocating memory");
-//        return 1;
-//    }
-//    for (int i = 0; i < num_lines; i++) {
-//        matrix[i] = malloc(sizeof(int) * num_cols);
-//        if (matrix[i] == NULL) {
-//            perror("Error allocating memory");
-//            return 1;
-//        }
-//    }
-//
-//    // קריאת מספרים מהקובץ והעתקתם למטריצה
-//    rewind(fp);
-//    for (int i = 0; i < num_lines; i++) {
-//        for (int j = 0; j < num_cols; j++) {
-//            fscanf(fp, "%d", &matrix[i][j]);
-//        }
-//    }
-//
-//    // סגירת קובץ
-//    fclose(fp);
-//
-//    // שחרור זיכרון
-//   /* for (int i = 0; i < num_lines; i++) {
-//        free(matrix[i]);
-//    }
-//    free(matrix);*/
-//
-//    return 0;
-//}
+
 
 void returnError(char*);
 
@@ -123,26 +59,20 @@ Node* syntactAnalysis()
     Node* mynode;
     Node* ret = NULL;
     push(stack, node1);
-    // mynode = peek(&stack);
-
-   // Token* tokenPtr = *headList;
+    
     Token* tokenPtr = headList;
 
     int mystate = NO_ERROR, action, counter, myindex,newAction;
 
-    /*push(&stack, tokenPtr->index);
-    tokenPtr = tokenPtr->next;*/
+    
 
     while (tokenPtr != NULL)
 
     {
         myindex = tokenPtr->index;
 
-        /*state = peek(&stack);
-        push(&stack, tokenPtr->index);*/
-        if (mystate == -999 || myindex == -999)
-            action = -999;
-        else
+        
+       
         action = matrix[mystate][myindex];
         if (action == -999)
         {        
@@ -151,7 +81,6 @@ Node* syntactAnalysis()
 
         }
 
-        //push(&stack,abs( action));
         if (action == 0)//access
         {   
             ret = pop(stack);
@@ -176,7 +105,6 @@ Node* syntactAnalysis()
             mystate = peekAt(stack, counter+1)->state;
             newAction = matrix[mystate][deductions[abs(action)].valueNumber];
             mynode = createNode(newAction, deductions[abs(action)].deduct, deductions[abs(action)].valueNumber);
-           // action = newAction;
             for (int i = 0; i < counter; i++)
             {
                 Node* childNode = pop(stack);
@@ -187,8 +115,7 @@ Node* syntactAnalysis()
 
             push(stack, mynode);
         }
-        /*if (peek(stack)->state == -999)
-            mystate = -999;*/
+        
         mystate = peek(stack)->state;
     }
 

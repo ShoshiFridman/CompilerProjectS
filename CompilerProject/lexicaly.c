@@ -114,37 +114,6 @@ int automate()
 
 //פונקציה שיוצרת רשימה של טוקנים 
 
-//void MyListOfTokens(char* value, char* nameToken, int index) {
-//	FILE* writeFile = NULL;
-//
-//	// הקצאת זיכרון חדש לצומת חדש
-//	Token* newToken = malloc(sizeof(Token));
-//	if (newToken == NULL) {
-//		printf("Error allocating memory for newToken\n");
-//		exit(1);
-//	}
-//
-//	// מילוי נתוני הצומת החדש
-//	newToken->value = value;
-//	newToken->nameToken = nameToken;
-//	newToken->index = index;
-//
-//	// קישור הצומת החדש לרשימה קיימת
-//	newToken->next = *headList;
-//	*headList = newToken;
-//
-//	// פתיחת קובץ היעד לכתיבה
-//	errno_t er = fopen_s(&writeFile, "C:/Users/User/Desktop/compilerProject/myTokens.txt", "a");
-//	if (writeFile == NULL) {
-//		printf("error in the file tokens.txt \n");
-//		exit(1);
-//	}
-//
-//	// כתיבת נתוני האסימון לקובץ
-//	fprintf(writeFile, " %s %s \n", value, nameToken);
-//	fclose(writeFile);
-//}
-
 void MyListOfTokens(char* value1, char* nameTokenn, int index) {
 	FILE* writeFile = NULL;
 
@@ -197,24 +166,11 @@ int hashFunction(int x)
 // שמקבלת מצב ומילה ומחפשת במערך המצבים הסופיים את הטוקן שמתאים למילה הספציפיתפונקציה
 int findToken(int* state, char* word)
 {
-	//// שימוש בטבלת גיבוב וחיסכון של מעבר על כל המערך
-	//int i = hashFunction(*state);
-	//while (end_states_arr[i] != NULL/*&&end_states_arr[i]->next != NULL*/)
-	//{
-	//	x = end_states_arr[i]->numToken;
-	//	if (x == *state)
-	//	{
-	//		MyListOfTokens(word, end_states_arr[i]->nameToken, end_states_arr[i]->num);
-	//		return 1;
-	//	}
-	//	end_states_arr[i] = end_states_arr[i]->next;
-	//}
-
-	//return 0;
+	
 	// שימוש בטבלת גיבוב וחיסכון של מעבר על כל המערך
 	int i = hashFunction(*state);
 	EndState * ptr= end_states_arr[i];
-	while (ptr != NULL/*&&end_states_arr[i]->next != NULL*/)
+	while (ptr != NULL)
 	{
 		x = ptr->numToken;
 		if (x == *state)
@@ -232,12 +188,10 @@ int findToken(int* state, char* word)
 void overTheWord(char* word)
 {
 	int i = 0, w = DEGEL, degel = DEGEL, j;
-	/*if (word[w] == '\n')
-		w++;*/
+	
 	while (cs.nextIndex <= NUM_STATES && cs.nextIndex >= 0 && word[w] != '\0')
 
 	{
-		//if(currentStateArr[i]!= 0x0000000000000000)
 		cs = *currentStateArr[i];
 		while (cs.csptr != NULL && ((int)cs.letter != (int)word[w]) && !degel)
 		{
@@ -364,38 +318,7 @@ void fillDuplicateTavs() {
 
 }
 
-//פונקציה שממלאת את מערך המצבים הסופיים
-//int FillEndStatesArr() {
-//	struct EndState endState;
-//
-//	fileTokens = fopen("C:/Users/User/Desktop/compilerProject/newTokens.txt", "r");
-//	if (fileTokens == NULL)
-//	{
-//		printf("error in the file tokens.txt \n");
-//		exit(1);
-//	}
-//
-//	while (fscanf(fileTokens, "%d %s %d", &(endState.numToken), endState.nameToken, &(endState.num)) != EOF && x <= END_STATE_SIZE)
-//
-//	{
-//		end_states_arr[x] = malloc(sizeof(EndState));
-//		end_states_arr[x]->numToken = endState.numToken;
-//
-//		myStrcpy(end_states_arr[x]->nameToken, endState.nameToken);
-//		end_states_arr[x]->num = endState.num;
-//		x++;
-//
-//
-//
-//
-//
-//
-//
-//	}
-//	fclose(fileTokens);
-//	// free(end_states_arr);
-//	return NO_ERROR;
-//}
+
 
 void FillEndStatesArr() {
 	struct EndState endState;
@@ -439,34 +362,7 @@ void FillEndStatesArr() {
 			myStrcpy(end_states_arr[x]->next->nameToken1, endState.nameToken1);
 
 		}
-		/*x = endState.numToken % END_STATE_SIZE;
-		if (end_states_arr[x] != NULL)
-		{
-			end_states_arr[x] = malloc(sizeof(struct EndState));
-			end_states_arr[x]->numToken = endState.numToken;
-			end_states_arr[x]->next = endState.next;
-			myStrcpy(end_states_arr[x]->nameToken, endState.nameToken);
-			end_states_arr[x]->num = endState.num;
-		}
-		else {
-			pointer = end_states_arr[x];
-			while (pointer->next != NULL && pointer->next != GARBAGE)
-				pointer = pointer->next;
-
-			end_states_arr[x]->next = malloc(sizeof(struct EndState));
-			if (end_states_arr[x]->next == NULL)
-			{
-				printf("Error allocating memory \n");
-				exit(1);
-			}
-			end_states_arr[x]->next->numToken = endState.numToken;
-			end_states_arr[x]->next->next = NULL;
-			myStrcpy(end_states_arr[x]->next->nameToken, endState.nameToken);
-			end_states_arr[x]->next->num = endState.num;
-		}*/
-
-
-
+		
 	}
 	fclose(fileTokens);
 	//free(end_states_arr);
@@ -577,9 +473,7 @@ void lexicalAnalysis()
 
 					j++;
 				}
-				/*if(sign==1)
-					ungetc(characters[j], file);*/
-
+				
 				if (nextTav != EOF && nextTav > 0 && sign != 2)
 					fseek(file, -1, SEEK_CUR);
 				sign = NO_ERROR;
@@ -604,13 +498,7 @@ void lexicalAnalysis()
 		}
 		tav = fgetc(file);
 	}
-	/*if (word) {
-		word = realloc(word, size + 1);
-		word[size] = '\0';
-		overTheWord(word);
-		free(word);
-	}
-	else*/
+	
 		free(word);
 
 	fclose(file);

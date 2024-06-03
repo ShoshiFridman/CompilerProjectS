@@ -6,7 +6,7 @@
 #include "mystring.h"
 
 
-#define TABLE_SIZE 100
+#define TABLE_SIZE 5
 #define MAX_STACK_SIZE 50
 #define Local_variable_declaration 69
 #define Assignment_Operator 7
@@ -32,31 +32,9 @@
 
 
 #define z 0xFFFFFFFFFFFFFFDF
-#define ACTION_NULL(node) if (IS_NULL(node))
-#define ACTION_LOCAL_VAR_DECL(node) if (IS_LOCAL_VAR_DECL(node))
-#define ACTION_ID(node) if (IS_ID(node))
-#define ACTION_FUNC_DEF(node) if (IS_FUNC_DEF(node))
-#define ACTION_ASSIGN_OP(node) if (IS_ASSIGN_OP(node))
-#define ACTION_OPT_INITIALIZER(node) if (IS_OPT_INITIALIZER(node))
-#define ACTION_FOR_STMT(node) if (IS_FOR_STMT(node))
-#define ACTION_WHILE_STMT(node) if (IS_WHILE_STMT(node))
-#define ACTION_DO_WHILE_STMT(node) if (IS_DO_WHILE_STMT(node))
-#define ACTION_RIGHT_CURLY_BRACE(node) if (IS_RIGHT_CURLY_BRACE(node))
-#define ACTION_SEMICOLON(node) if (IS_SEMICOLON(node))
-#define ACTION_BINARY_OP(node) if (IS_BINARY_OP(node))
 
-#define IS_NULL(node) (node == NULL)
-#define IS_LOCAL_VAR_DECL(node) (node->numOfToken == Local_variable_declaration)
-#define IS_ID(node) (node->numOfToken == ID)
-#define IS_FUNC_DEF(node) (node->numOfToken == FUNCTION_DEFINITION)
-#define IS_ASSIGN_OP(node) (node->numOfToken == Assignment_Operator)
-#define IS_OPT_INITIALIZER(node) (node->parent->numOfToken == optional_initializer)
-#define IS_FOR_STMT(node) (node->numOfToken == FOR_STATEMENT)
-#define IS_WHILE_STMT(node) (node->numOfToken == WHILE_STATEMENT)
-#define IS_DO_WHILE_STMT(node) (node->numOfToken == DO_WHILE_STATEMENT)
-#define IS_RIGHT_CURLY_BRACE(node) (node->numOfToken == RightCurlyBrace)
-#define IS_SEMICOLON(node) (node->numOfToken == Semicolon)
-#define IS_BINARY_OP(node) (node->numOfToken == binaryOperator)
+
+
 
 // Structure to represent a symbol table entry
 typedef struct {
@@ -274,16 +252,16 @@ Entry* checkIfDeclared(char* key)
     return entry;
 }
 
-void createNewSymbolTable()
-{
-    
-    Entry new_hash_table[TABLE_SIZE];
-    Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
-    push1(&new_hash_table_ptr);
-
-
-
-}
+//void createNewSymbolTable()
+//{
+//    
+//    Entry new_hash_table[TABLE_SIZE];
+//    Entry(*new_hash_table_ptr)[TABLE_SIZE] = new_hash_table;
+//    push1(&new_hash_table_ptr);
+//
+//
+//
+//}
 
 int searchBlock(struct Node* node)
 {
@@ -305,6 +283,8 @@ int searchBlock(struct Node* node)
 
     return 0;
 }
+
+
 
 void deepSearch(struct Node* node, int d)
 {
@@ -392,13 +372,13 @@ void deepSearch(struct Node* node, int d)
     {
         push1();
 
-        createNewSymbolTable();
+       // createNewSymbolTable();
         d = searchBlock(node);//אם יש סלסלים בלולאה
         if (!d)
             d = 2;
     }
 
-    if (d == 1 && node->numOfToken == RightCurlyBrace)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
+    if (d == 1 && node->numOfToken == RightCurlyBrace&&node->parent->numOfToken!=IF_STATEMENT)//הוצאת הטבלה מהמחסנית כשנתקלים בסלסל סוגר
     {
         pop1();
         d = 0;
